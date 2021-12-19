@@ -11,6 +11,36 @@ class Task:
         self.to_do = tk.StringVar()
         self.time = tk.StringVar()
 
+def select(button, task):
+    if button['bg'] == main_colour:
+        selected_tasks.append(task)
+        button.configure(bg=mark_colour)
+    else:
+        selected_tasks.remove(task)
+        button.configure(bg=main_colour)
+
+def remove_task():
+    #remove the task from list and update the GUI
+    #when removing tasks twice:error ValueError: list.remove(x): x not in list
+    for widget in main_body.winfo_children():
+        widget.destroy()
+    for task in selected_tasks:
+        tasks.remove(task)
+    for task in tasks:
+        write_task(task)
+
+
+def write_task(task):
+    mark_btn = tk.Button(master=main_body, text="", padx=10, pady=5,
+                            command=lambda: select(mark_btn, task), bg=main_colour, bd=-2, highlightthickness=0, activebackground=mark_colour, cursor="hand2")
+    mark_btn.grid(row=len(tasks)-1, column=0, columnspan = 2, sticky = "nsew")
+
+    task_label = tk.Label(master=main_body, text = task.title.get(), font=("calibre",10,"normal"), bg=main_colour, fg=white)
+    task_label.grid(row=tasks.index(task), column=0)
+
+    task_label = tk.Label(master=main_body, text = str(task.time.get()) + " minutes", font=("calibre",10,"normal"), bg=main_colour, fg=white)
+    task_label.grid(row=tasks.index(task), column=1)
+
 
 def add_task():
     task = Task()
@@ -50,18 +80,17 @@ def add_task():
     footer = tk.Frame(master=task_window, width=500, height=40, bg=accent_colour)
     footer.pack(fill=tk.X)
 
+
     def close():
         task_window.destroy()
         tasks.append(task)
-        task_label = tk.Label(master=main_body, text = task.title.get(), font=("calibre",10,"normal"), bg=main_colour, fg=white)
-        task_label.grid(row=len(tasks)-1, column=0)
+        write_task(task)
 
-        task_label = tk.Label(master=main_body, text = str(task.time.get()) + " minutes", font=("calibre",10,"normal"), bg=main_colour, fg=white)
-        task_label.grid(row=len(tasks)-1, column=1)
+
 
 
     add_task_btn = tk.Button(master=footer, text="Add", font=("calibre",10,"bold"), padx=10, pady=5, fg=white,
-                            command= close, bg=green, bd=-2, highlightthickness=0)
+                            command= close, bg=green, bd=-2, highlightthickness=0, cursor="hand2", activebackground=light_green, activeforeground=white)
     add_task_btn.pack()
 
 
@@ -70,10 +99,17 @@ accent_colour = "#2C2F33"
 main_colour = "#36393E"
 darker_accent_colour = "#222529"
 green = "#4a9f04"
+light_green = "#54A90E"
 yellow = "#faba01"
 white = "#fffdff"
+red = "#d11a2a"
+light_red = "#DB2434"
+mark_colour = "#404348"
+select_colour = "#5F6267"
+
 
 tasks = []
+selected_tasks = []
 
 window = tk.Tk()
 
@@ -97,7 +133,13 @@ main_body.rowconfigure([0, 1, 3, 4, 5, 6, 7, 8, 9, 10],weight=1, minsize=50)
 
 
 add_task_btn = tk.Button(master=header, text="Add task", font=("calibre",10,"bold"), padx=10, pady=5, fg=white,
-                        command=add_task, bg=green, bd=-2, highlightthickness=0)
+                        command=add_task, bg=green, bd=-2, highlightthickness=0, cursor="hand2", activebackground=light_green, activeforeground=white)
 add_task_btn.grid(row=0, column=0)
+
+remove_task_btn = tk.Button(master=header, text="Remove task", font=("calibre",10,"bold"), padx=10, pady=5, fg=white,
+                        command=remove_task, bg=red, bd=-2, highlightthickness=0, cursor="hand2", activebackground=light_red, activeforeground=white)
+remove_task_btn.grid(row=0, column=1)
+
+#make add standard task button in the sidebar that makes it so you can add that task with one click
 
 window.mainloop()
